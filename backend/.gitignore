@@ -1,0 +1,25 @@
+# Backend
+backend/node_modules/
+backend/uploads/
+backend/.env
+backend/.env.local
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+.packages
+*.iml
+
+# Env files (any location)
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
