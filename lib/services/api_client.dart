@@ -8,16 +8,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 /// Central HTTP client for the HRMS backend API.
 class ApiClient {
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:3000';
-    }
-    if (Platform.isAndroid) {
-  return 'http://10.0.2.2:3000';  // Android emulator
-}
-    return 'http://localhost:3000';
+    return 'https://hrms-bitbyte-mobile.onrender.com';
   }
-
-  static const Duration _timeout = Duration(seconds: 15);
+ static const Duration _timeout = Duration(seconds: 30);
 
   static final Map<String, String> _headers = {
     'Content-Type': 'application/json',
