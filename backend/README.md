@@ -56,7 +56,7 @@ Server starts at **http://localhost:3000**.
 
 ## API Reference
 
-### Health
+<!-- ### Health -->
 
 | Method | Path | Description |
 |--------|------|-------------|
