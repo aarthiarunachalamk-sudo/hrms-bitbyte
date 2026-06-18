@@ -6,10 +6,10 @@ const pool = require('../db/pool');
 router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, employee_code, full_name, email, department, designation, sector, is_active, created_at
+      `SELECT id, first_name, last_name, email, phone_number, designation, is_active, created_at
        FROM employees
        WHERE is_active = TRUE
-       ORDER BY full_name`
+       ORDER BY first_name`
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      `SELECT id, employee_code, full_name, email, department, designation, sector, is_active, created_at
+      `SELECT id, first_name, last_name, email, phone_number, designation, is_active, created_at
        FROM employees WHERE id = $1`,
       [req.params.id]
     );
@@ -38,23 +38,23 @@ router.get('/:id', async (req, res) => {
 
 // ── POST /api/employees  – create employee
 router.post('/', async (req, res) => {
-  const { employee_code, full_name, email, department, designation, sector } = req.body;
+  const { first_name, last_name, email, phone_number, designation } = req.body;
 
-  if (!employee_code || !full_name || !email) {
-    return res.status(400).json({ success: false, message: 'employee_code, full_name and email are required' });
+  if (!first_name || !last_name || !email) {
+    return res.status(400).json({ success: false, message: 'first_name, last_name and email are required' });
   }
 
   try {
     const { rows } = await pool.query(
-      `INSERT INTO employees (employee_code, full_name, email, department, designation, sector)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO employees (first_name, last_name, email, phone_number, designation)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [employee_code, full_name, email, department || null, designation || null, sector || 'Sector 09A']
+      [first_name, last_name, email, phone_number || null, designation || null]
     );
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
     if (err.code === '23505') {
-      return res.status(409).json({ success: false, message: 'Employee code or email already exists' });
+      return res.status(409).json({ success: false, message: 'Email already exists' });
     }
     console.error('POST /employees error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -63,19 +63,19 @@ router.post('/', async (req, res) => {
 
 // ── PUT /api/employees/:id  – update employee
 router.put('/:id', async (req, res) => {
-  const { full_name, email, department, designation, sector, is_active } = req.body;
+  const { first_name, last_name, email, phone_number, designation, is_active } = req.body;
   try {
     const { rows } = await pool.query(
       `UPDATE employees
-       SET full_name   = COALESCE($1, full_name),
-           email       = COALESCE($2, email),
-           department  = COALESCE($3, department),
-           designation = COALESCE($4, designation),
-           sector      = COALESCE($5, sector),
-           is_active   = COALESCE($6, is_active)
+       SET first_name   = COALESCE($1, first_name),
+           last_name    = COALESCE($2, last_name),
+           email        = COALESCE($3, email),
+           phone_number = COALESCE($4, phone_number),
+           designation  = COALESCE($5, designation),
+           is_active    = COALESCE($6, is_active)
        WHERE id = $7
        RETURNING *`,
-      [full_name, email, department, designation, sector, is_active, req.params.id]
+      [first_name, last_name, email, phone_number, designation, is_active, req.params.id]
     );
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Employee not found' });
@@ -97,7 +97,8 @@ async function ensureDbColumns() {
     await pool.query('ALTER TABLE employees ADD COLUMN IF NOT EXISTS password_hash   VARCHAR(255)');
     await pool.query('ALTER TABLE employees ADD COLUMN IF NOT EXISTS is_first_login  BOOLEAN DEFAULT TRUE');
     await pool.query('ALTER TABLE employees ADD COLUMN IF NOT EXISTS birthday        DATE');
-    await pool.query('ALTER TABLE employees ADD COLUMN IF NOT EXISTS joining_date    DATE');
+await pool.query('ALTER TABLE employees ADD COLUMN IF NOT EXISTS joining_date    DATE');
+    await pool.query('ALTER TABLE employees ADD COLUMN IF NOT EXISTS phone_number    VARCHAR(20)');
   } catch (err) {
     console.error('Error ensuring database columns exist:', err.message);
   }
@@ -212,17 +213,16 @@ async function sendWelcomeEmail(fullName, email, tempPassword) {
 
 // ── POST /api/employees/signup  – employee registration & password generation
 router.post('/signup', async (req, res) => {
-  const { firstName, lastName, email, designation, birthday, joiningDate } = req.body;
+  const { firstName, lastName, email, phoneNumber, designation, birthday, joiningDate } = req.body;
 
-  if (!firstName || !lastName || !email || !designation || !birthday || !joiningDate) {
+  if (!firstName || !lastName || !email || !phoneNumber || !designation || !birthday || !joiningDate) {
     return res.status(400).json({
       success: false,
-      message: 'firstName, lastName, email, designation, birthday and joiningDate are required',
+      message: 'firstName, lastName, email, phoneNumber, designation, birthday and joiningDate are required',
     });
   }
 
-  const fullName = `${firstName} ${lastName}`;
-  const employeeCode = `EMP-${Math.floor(1000 + Math.random() * 9000)}`;
+  const fullName = `${firstName} ${lastName}`; // only used for the welcome email greeting
   const tempPassword = generateTempPassword();
 
   try {
@@ -231,10 +231,10 @@ router.post('/signup', async (req, res) => {
 
     // Insert new employee record
     const { rows } = await pool.query(
-      `INSERT INTO employees (employee_code, full_name, email, designation, birthday, joining_date, temp_password, password_hash, is_first_login)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $7, TRUE)
+      `INSERT INTO employees (first_name, last_name, email, phone_number, designation, birthday, joining_date, temp_password, password_hash, is_first_login)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, TRUE)
        RETURNING *`,
-      [employeeCode, fullName, email, designation, birthday, joiningDate, tempPassword]
+      [firstName, lastName, email, phoneNumber, designation, birthday, joiningDate, tempPassword]
     );
 
     // Send welcome email with password via nodemailer

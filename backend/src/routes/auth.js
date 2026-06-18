@@ -14,8 +14,8 @@ router.post('/login', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      `SELECT id, employee_code, full_name, email, department, designation,
-              sector, is_active, is_first_login, password_hash, created_at
+      `SELECT id, first_name, last_name, email, designation,
+              is_active, is_first_login, password_hash, created_at
        FROM employees
        WHERE LOWER(email) = LOWER($1) AND is_active = TRUE`,
       [email.trim()]

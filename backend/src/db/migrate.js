@@ -17,12 +17,11 @@ async function migrate() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS employees (
         id              SERIAL PRIMARY KEY,
-        employee_code   VARCHAR(20)  UNIQUE NOT NULL,
-        full_name       VARCHAR(100) NOT NULL,
+        first_name      VARCHAR(50)  NOT NULL,
+        last_name       VARCHAR(50)  NOT NULL,
         email           VARCHAR(150) UNIQUE NOT NULL,
-        department      VARCHAR(80),
+        phone_number    VARCHAR(20),
         designation     VARCHAR(80),
-        sector          VARCHAR(50)  DEFAULT 'Sector 09A',
         is_active       BOOLEAN      DEFAULT TRUE,
         password_hash   VARCHAR(255),
         is_first_login  BOOLEAN      DEFAULT TRUE,
@@ -116,20 +115,20 @@ async function migrate() {
     // ──────────────────────────────────────────────
     // 5. Demo seed – fixed accounts (idempotent)
     // ──────────────────────────────────────────────
-    const demoUsers = [
-      ['EMP-001', 'Aarthi S',      'aarthiarunachalamk@gmail.com', 'Engineering', 'Senior Developer', 'BB-TempPass@2026'],
-      ['EMP-ADM', 'Admin User',    'admin@bitbyte.tech',           'Management',  'HR Admin',         'Admin@1234'],
-      ['EMP-SUP', 'Super Admin',   'superadmin@bitbyte.tech',      'Management',  'Super Admin',      'Super@1234'],
+const demoUsers = [
+      ['Aarthi', 'S',     'aarthiarunachalamk@gmail.com', 'Senior Developer', 'BB-TempPass@2026'],
+      ['Admin',  'User',  'admin@bitbyte.tech',           'HR Admin',         'Admin@1234'],
+      ['Super',  'Admin', 'superadmin@bitbyte.tech',      'Super Admin',      'Super@1234'],
     ];
 
-    for (const [code, name, email, dept, desig, pass] of demoUsers) {
+    for (const [firstName, lastName, email, desig, pass] of demoUsers) {
       await client.query(`
-        INSERT INTO employees (employee_code, full_name, email, department, designation, password_hash, is_first_login)
-        VALUES ($1, $2, $3, $4, $5, $6, FALSE)
-        ON CONFLICT (employee_code) DO UPDATE
+        INSERT INTO employees (first_name, last_name, email, designation, password_hash, is_first_login)
+        VALUES ($1, $2, $3, $4, $5, FALSE)
+        ON CONFLICT (email) DO UPDATE
           SET password_hash  = EXCLUDED.password_hash,
               is_first_login = FALSE;
-      `, [code, name, email, dept, desig, pass]);
+      `, [firstName, lastName, email, desig, pass]);
     }
 
     await client.query('COMMIT');
