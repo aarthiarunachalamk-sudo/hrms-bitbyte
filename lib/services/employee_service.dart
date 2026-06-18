@@ -48,21 +48,19 @@ class EmployeeService {
   }
 
   /// Create a new employee.
-  static Future<Employee> create({
-    required String employeeCode,
-    required String fullName,
+ static Future<Employee> create({
+    required String firstName,
+    required String lastName,
     required String email,
-    String? department,
+    String? phoneNumber,
     String? designation,
-    String? sector,
   }) async {
     final res = await ApiClient.post('/api/employees', {
-      'employee_code': employeeCode,
-      'full_name': fullName,
+      'first_name': firstName,
+      'last_name': lastName,
       'email': email,
-      if (department != null) 'department': department,
+      if (phoneNumber != null) 'phone_number': phoneNumber,
       if (designation != null) 'designation': designation,
-      if (sector != null) 'sector': sector,
     });
     return Employee.fromJson(res['data'] as Map<String, dynamic>);
   }
@@ -71,6 +69,7 @@ class EmployeeService {
     required String firstName,
     required String lastName,
     required String email,
+    required String phoneNumber,
     required String designation,
     required String birthday,
     required String joiningDate,
@@ -80,12 +79,18 @@ class EmployeeService {
         'firstName': firstName,
         'lastName': lastName,
         'email': email,
+        'phoneNumber': phoneNumber,
         'designation': designation,
         'birthday': birthday,
         'joiningDate': joiningDate,
       });
-      return res['data'] as Map<String, dynamic>;
+return res['data'] as Map<String, dynamic>;
+    } on ApiException {
+      // Real backend error (e.g. "email already exists") — show it to the
+      // user instead of silently faking a successful registration.
+      rethrow;
     } catch (e) {
+      // Backend is genuinely unreachable (server not running / no network).
       // ignore: avoid_print
       print('Backend server offline ($e). Falling back to mock registration.');
       final random = math.Random();

@@ -18,9 +18,10 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _joiningDateController = TextEditingController();
-  
+
   String? _selectedRole;
   bool _isLoading = false;
 
@@ -39,6 +40,7 @@ class _SignupScreenState extends State<SignupScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _birthdayController.dispose();
     _joiningDateController.dispose();
     super.dispose();
@@ -62,7 +64,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().isBefore(lastDate) && DateTime.now().isAfter(firstDate)
+      initialDate:
+          DateTime.now().isBefore(lastDate) && DateTime.now().isAfter(firstDate)
           ? DateTime.now()
           : lastDate,
       firstDate: firstDate,
@@ -70,7 +73,7 @@ class _SignupScreenState extends State<SignupScreen> {
       builder: (context, child) {
         return Theme(
           data: theme.copyWith(
-            colorScheme: isDark 
+            colorScheme: isDark
                 ? const ColorScheme.dark(
                     primary: Color(0xFF00D2FF),
                     onPrimary: Color(0xFF0D0D16),
@@ -112,6 +115,7 @@ class _SignupScreenState extends State<SignupScreen> {
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
           email: _emailController.text.trim(),
+          phoneNumber: _phoneController.text.trim(),
           designation: _selectedRole!,
           birthday: _birthdayController.text,
           joiningDate: _joiningDateController.text,
@@ -123,7 +127,8 @@ class _SignupScreenState extends State<SignupScreen> {
         // Send welcome email
         await EmailService.sendTempPasswordEmail(
           recipientEmail: _emailController.text.trim(),
-          recipientName: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
+          recipientName:
+              '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
           tempPassword: tempPassword,
         );
 
@@ -159,7 +164,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   'Your account has been successfully created. We have sent a temporary login password to your email address.',
                   style: GoogleFonts.inter(
                     fontSize: 14,
-                    color: dialogTheme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                    color: dialogTheme.colorScheme.onSurfaceVariant.withOpacity(
+                      0.8,
+                    ),
                   ),
                 ),
                 actions: [
@@ -171,7 +178,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Text(
                       'Close',
                       style: GoogleFonts.inter(
-                        color: dialogTheme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                        color: dialogTheme.colorScheme.onSurfaceVariant
+                            .withOpacity(0.6),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -271,16 +279,16 @@ class _SignupScreenState extends State<SignupScreen> {
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 children: [
                   const SizedBox(height: 12),
 
                   // Top Logo Section
-                  const BitByteLogo(
-                    size: 80,
-                    showText: false,
-                  ),
+                  const BitByteLogo(size: 80, showText: false),
                   const SizedBox(height: 12),
 
                   // Header text
@@ -299,7 +307,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   GlassContainer(
                     padding: const EdgeInsets.all(20.0),
                     borderRadius: BorderRadius.circular(24.0),
-                    backgroundColor: isDark ? const Color(0xFF131722).withOpacity(0.75) : theme.colorScheme.surface,
+                    backgroundColor: isDark
+                        ? const Color(0xFF131722).withOpacity(0.75)
+                        : theme.colorScheme.surface,
                     borderColor: theme.colorScheme.outline,
                     child: Form(
                       key: _formKey,
@@ -321,7 +331,8 @@ class _SignupScreenState extends State<SignupScreen> {
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.8),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -334,23 +345,30 @@ class _SignupScreenState extends State<SignupScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'FIRST NAME',
-                                      style: labelStyle,
-                                    ),
+                                    Text('FIRST NAME', style: labelStyle),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _firstNameController,
-                                      style: GoogleFonts.inter(fontSize: 15, color: theme.colorScheme.onSurface),
-                                      decoration: _buildInputDecoration(hintText: 'John', theme: theme, isDark: isDark),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                      decoration: _buildInputDecoration(
+                                        hintText: 'John',
+                                        theme: theme,
+                                        isDark: isDark,
+                                      ),
                                       validator: (value) {
-                                        if (value == null || value.trim().isEmpty) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
                                           return 'Required';
                                         }
                                         if (value.trim().length < 2) {
                                           return 'At least 2 characters';
                                         }
-                                        if (!RegExp(r"^[a-zA-Z\s\-']+$").hasMatch(value.trim())) {
+                                        if (!RegExp(
+                                          r"^[a-zA-Z\s\-']+$",
+                                        ).hasMatch(value.trim())) {
                                           return 'Alphabetic only';
                                         }
                                         return null;
@@ -364,23 +382,30 @@ class _SignupScreenState extends State<SignupScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'LAST NAME',
-                                      style: labelStyle,
-                                    ),
+                                    Text('LAST NAME', style: labelStyle),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _lastNameController,
-                                      style: GoogleFonts.inter(fontSize: 15, color: theme.colorScheme.onSurface),
-                                      decoration: _buildInputDecoration(hintText: 'Doe', theme: theme, isDark: isDark),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                      decoration: _buildInputDecoration(
+                                        hintText: 'Doe',
+                                        theme: theme,
+                                        isDark: isDark,
+                                      ),
                                       validator: (value) {
-                                        if (value == null || value.trim().isEmpty) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
                                           return 'Required';
                                         }
                                         if (value.trim().length < 2) {
                                           return 'At least 2 characters';
                                         }
-                                        if (!RegExp(r"^[a-zA-Z\s\-']+$").hasMatch(value.trim())) {
+                                        if (!RegExp(
+                                          r"^[a-zA-Z\s\-']+$",
+                                        ).hasMatch(value.trim())) {
                                           return 'Alphabetic only';
                                         }
                                         return null;
@@ -394,15 +419,15 @@ class _SignupScreenState extends State<SignupScreen> {
                           const SizedBox(height: 18),
 
                           // Email ID
-                          Text(
-                            'EMAIL ID',
-                            style: labelStyle,
-                          ),
+                          Text('EMAIL ID', style: labelStyle),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            style: GoogleFonts.inter(fontSize: 15, color: theme.colorScheme.onSurface),
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              color: theme.colorScheme.onSurface,
+                            ),
                             decoration: _buildInputDecoration(
                               hintText: 'john.doe@techcorp.com',
                               prefixIcon: Icons.email_outlined,
@@ -413,7 +438,9 @@ class _SignupScreenState extends State<SignupScreen> {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Please enter your email ID';
                               }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
+                              if (!RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              ).hasMatch(value.trim())) {
                                 return 'Please enter a valid email address';
                               }
                               return null;
@@ -421,19 +448,50 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 18),
 
-                          // Designation
-                          Text(
-                            'DESIGNATION',
-                            style: labelStyle,
+                          // Phone Number
+                          Text('PHONE NUMBER', style: labelStyle),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            decoration: _buildInputDecoration(
+                              hintText: '9876543210',
+                              prefixIcon: Icons.phone_outlined,
+                              theme: theme,
+                              isDark: isDark,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your phone number';
+                              }
+                              if (!RegExp(
+                                r'^[0-9]{10}$',
+                              ).hasMatch(value.trim())) {
+                                return 'Enter a valid 10-digit phone number';
+                              }
+                              return null;
+                            },
                           ),
+                          const SizedBox(height: 18),
+
+                          // Designation
+                          Text('DESIGNATION', style: labelStyle),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             value: _selectedRole,
                             dropdownColor: theme.colorScheme.surface,
-                            style: GoogleFonts.inter(fontSize: 15, color: theme.colorScheme.onSurface),
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              color: theme.colorScheme.onSurface,
+                            ),
                             icon: Icon(
                               Icons.keyboard_arrow_down,
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.6),
                             ),
                             decoration: _buildInputDecoration(
                               hintText: 'Select your role',
@@ -446,7 +504,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                 value: designation,
                                 child: Text(
                                   designation,
-                                  style: GoogleFonts.inter(fontSize: 15, color: theme.colorScheme.onSurface),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -457,7 +518,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                  return 'Please select your role';
+                                return 'Please select your role';
                               }
                               return null;
                             },
@@ -472,10 +533,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'BIRTHDAY',
-                                      style: labelStyle,
-                                    ),
+                                    Text('BIRTHDAY', style: labelStyle),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _birthdayController,
@@ -484,16 +542,24 @@ class _SignupScreenState extends State<SignupScreen> {
                                         context,
                                         _birthdayController,
                                         firstDate: DateTime(1950),
-                                        lastDate: DateTime.now().subtract(const Duration(days: 365 * 16)), // Minimum 16 years old
+                                        lastDate: DateTime.now().subtract(
+                                          const Duration(days: 365 * 16),
+                                        ), // Minimum 16 years old
                                       ),
-                                      style: GoogleFonts.inter(fontSize: 14, color: theme.colorScheme.onSurface),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
                                       decoration: _buildInputDecoration(
                                         hintText: 'YYYY-MM-DD',
                                         theme: theme,
                                         isDark: isDark,
                                         suffixIcon: Icon(
                                           Icons.calendar_today_outlined,
-                                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                          color: theme
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                              .withOpacity(0.5),
                                           size: 18,
                                         ),
                                       ),
@@ -501,11 +567,17 @@ class _SignupScreenState extends State<SignupScreen> {
                                         if (value == null || value.isEmpty) {
                                           return 'Required';
                                         }
-                                        if (_joiningDateController.text.isNotEmpty) {
+                                        if (_joiningDateController
+                                            .text
+                                            .isNotEmpty) {
                                           try {
                                             final dob = DateTime.parse(value);
-                                            final doc = DateTime.parse(_joiningDateController.text);
-                                            final ageAtJoining = doc.difference(dob).inDays / 365.25;
+                                            final doc = DateTime.parse(
+                                              _joiningDateController.text,
+                                            );
+                                            final ageAtJoining =
+                                                doc.difference(dob).inDays /
+                                                365.25;
                                             if (ageAtJoining < 18) {
                                               return 'Must be 18+ at joining';
                                             }
@@ -522,10 +594,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'JOINING DATE',
-                                      style: labelStyle,
-                                    ),
+                                    Text('JOINING DATE', style: labelStyle),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _joiningDateController,
@@ -534,16 +603,24 @@ class _SignupScreenState extends State<SignupScreen> {
                                         context,
                                         _joiningDateController,
                                         firstDate: DateTime(2000),
-                                        lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                                        lastDate: DateTime.now().add(
+                                          const Duration(days: 365 * 2),
+                                        ),
                                       ),
-                                      style: GoogleFonts.inter(fontSize: 14, color: theme.colorScheme.onSurface),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
                                       decoration: _buildInputDecoration(
                                         hintText: 'YYYY-MM-DD',
                                         theme: theme,
                                         isDark: isDark,
                                         suffixIcon: Icon(
                                           Icons.calendar_today_outlined,
-                                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                          color: theme
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                              .withOpacity(0.5),
                                           size: 18,
                                         ),
                                       ),
@@ -551,11 +628,17 @@ class _SignupScreenState extends State<SignupScreen> {
                                         if (value == null || value.isEmpty) {
                                           return 'Required';
                                         }
-                                        if (_birthdayController.text.isNotEmpty) {
+                                        if (_birthdayController
+                                            .text
+                                            .isNotEmpty) {
                                           try {
-                                            final dob = DateTime.parse(_birthdayController.text);
+                                            final dob = DateTime.parse(
+                                              _birthdayController.text,
+                                            );
                                             final doc = DateTime.parse(value);
-                                            final ageAtJoining = doc.difference(dob).inDays / 365.25;
+                                            final ageAtJoining =
+                                                doc.difference(dob).inDays /
+                                                365.25;
                                             if (ageAtJoining < 18) {
                                               return 'Must be 18+ at joining';
                                             }
@@ -577,15 +660,16 @@ class _SignupScreenState extends State<SignupScreen> {
                             height: 54,
                             child: Container(
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(14),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: theme.colorScheme.primary.withOpacity(0.15),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.15),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(14),
                                 child: Material(
@@ -608,19 +692,22 @@ class _SignupScreenState extends State<SignupScreen> {
                                             ? const SizedBox(
                                                 height: 24,
                                                 width: 24,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2.5,
-                                                  color: Colors.white,
-                                                ),
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2.5,
+                                                      color: Colors.white,
+                                                    ),
                                               )
                                             : Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   Text(
                                                     'Sign Up',
                                                     style: GoogleFonts.inter(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       color: Colors.white,
                                                       letterSpacing: 0.5,
                                                     ),
@@ -658,7 +745,8 @@ class _SignupScreenState extends State<SignupScreen> {
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.8),
                                 ),
                               ),
                               GestureDetector(
@@ -700,7 +788,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       GestureDetector(
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Privacy Policy coming soon!')),
+                            const SnackBar(
+                              content: Text('Privacy Policy coming soon!'),
+                            ),
                           );
                         },
                         child: Text(
@@ -708,7 +798,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withOpacity(0.6),
                           ),
                         ),
                       ),
@@ -716,7 +807,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       GestureDetector(
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Technical Support coming soon!')),
+                            const SnackBar(
+                              content: Text('Technical Support coming soon!'),
+                            ),
                           );
                         },
                         child: Text(
@@ -724,7 +817,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withOpacity(0.6),
                           ),
                         ),
                       ),
@@ -762,22 +856,24 @@ class _SignupScreenState extends State<SignupScreen> {
           : null,
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: isDark ? const Color(0xFF0F121C) : theme.colorScheme.surfaceDim.withOpacity(0.5),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      errorStyle: GoogleFonts.inter(fontSize: 12, color: theme.colorScheme.error),
+      fillColor: isDark
+          ? const Color(0xFF0F121C)
+          : theme.colorScheme.surfaceDim.withOpacity(0.5),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 16.0,
+      ),
+      errorStyle: GoogleFonts.inter(
+        fontSize: 12,
+        color: theme.colorScheme.error,
+      ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: BorderSide(
-          color: theme.colorScheme.outline,
-          width: 1.0,
-        ),
+        borderSide: BorderSide(color: theme.colorScheme.outline, width: 1.0),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: BorderSide(
-          color: theme.colorScheme.primary,
-          width: 1.0,
-        ),
+        borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.0),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -788,10 +884,7 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: BorderSide(
-          color: theme.colorScheme.error,
-          width: 1.0,
-        ),
+        borderSide: BorderSide(color: theme.colorScheme.error, width: 1.0),
       ),
     );
   }

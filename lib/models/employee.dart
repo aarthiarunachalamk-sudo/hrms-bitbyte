@@ -1,35 +1,35 @@
 class Employee {
   final int id;
-  final String employeeCode;
-  final String fullName;
+  final String firstName;
+  final String lastName;
   final String email;
-  final String? department;
+  final String? phoneNumber;
   final String? designation;
-  final String sector;
   final bool isActive;
   final DateTime createdAt;
 
   const Employee({
     required this.id,
-    required this.employeeCode,
-    required this.fullName,
+    required this.firstName,
+    required this.lastName,
     required this.email,
-    this.department,
+    this.phoneNumber,
     this.designation,
-    required this.sector,
     required this.isActive,
     required this.createdAt,
   });
 
+  /// Kept so screens that show `employee.fullName` keep working.
+  String get fullName => '$firstName $lastName';
+
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
       id: json['id'] as int,
-      employeeCode: json['employee_code'] as String,
-      fullName: json['full_name'] as String,
+      firstName: json['first_name'] as String,
+      lastName: json['last_name'] as String,
       email: json['email'] as String,
-      department: json['department'] as String?,
+      phoneNumber: json['phone_number'] as String?,
       designation: json['designation'] as String?,
-      sector: json['sector'] as String? ?? 'Sector 09A',
       isActive: json['is_active'] as bool? ?? true,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
@@ -37,12 +37,11 @@ class Employee {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'employee_code': employeeCode,
-    'full_name': fullName,
+    'first_name': firstName,
+    'last_name': lastName,
     'email': email,
-    'department': department,
+    'phone_number': phoneNumber,
     'designation': designation,
-    'sector': sector,
     'is_active': isActive,
     'created_at': createdAt.toIso8601String(),
   };

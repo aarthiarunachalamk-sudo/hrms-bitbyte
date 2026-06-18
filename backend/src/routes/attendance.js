@@ -56,7 +56,7 @@ router.post('/check-in', upload.single('selfie'), async (req, res) => {
     await client.query('BEGIN');
 
     // Ensure employee exists
-    const emp = await client.query('SELECT id, full_name FROM employees WHERE id = $1 AND is_active = TRUE', [empId]);
+    const emp = await client.query('SELECT id, first_name, last_name FROM employees WHERE id = $1 AND is_active = TRUE', [empId]);
     if (emp.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ success: false, message: 'Employee not found or inactive' });
@@ -110,7 +110,7 @@ router.post('/check-in', upload.single('selfie'), async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: `Check-in recorded for ${emp.rows[0].full_name}`,
+      message: `Check-in recorded for ${emp.rows[0].first_name} ${emp.rows[0].last_name}`,
       data: {
         ...rows[0],
         late_minutes: lateMinutes,
@@ -223,7 +223,7 @@ router.get('/today/:employee_id', async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   try {
     const { rows } = await pool.query(
-      `SELECT ar.*, e.full_name, e.employee_code
+      `SELECT ar.*, (e.first_name || ' ' || e.last_name) AS full_name
        FROM attendance_records ar
        JOIN employees e ON e.id = ar.employee_id
        WHERE ar.employee_id = $1 AND ar.work_date = $2`,
@@ -264,7 +264,7 @@ router.get('/history/:employee_id', async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      `SELECT ar.*, e.full_name, e.employee_code
+      `SELECT ar.*, (e.first_name || ' ' || e.last_name) AS full_name
        FROM attendance_records ar
        JOIN employees e ON e.id = ar.employee_id
        WHERE ar.employee_id = $1
@@ -299,7 +299,7 @@ router.get('/activity/:employee_id', async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   try {
     const { rows } = await pool.query(
-      `SELECT al.*, e.full_name
+      `SELECT al.*, (e.first_name || ' ' || e.last_name) AS full_name
        FROM activity_logs al
        JOIN employees e ON e.id = al.employee_id
        WHERE al.employee_id = $1

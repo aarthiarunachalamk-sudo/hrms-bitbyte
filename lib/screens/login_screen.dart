@@ -8,6 +8,7 @@ import '../services/session_manager.dart';
 import '../services/api_client.dart';
 import 'main_navigation.dart';
 import 'signup_screen.dart';
+import 'change_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String? initialEmail;
@@ -78,15 +79,26 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text.trim(),
         );
 
-        SessionManager.login(result.employee);
+SessionManager.login(result.employee);
 
         if (!mounted) return;
         setState(() => _isLoading = false);
 
-        // Always go to dashboard — password change is handled via Gmail inbox flow
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-        );
+        if (result.isFirstLogin) {
+          // First login — force the user to set a new password
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => ChangePasswordScreen(
+                email: _emailController.text.trim(),
+                tempPassword: _passwordController.text.trim(),
+              ),
+            ),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+          );
+        }
       } on ApiException catch (e) {
         if (mounted) {
           setState(() => _isLoading = false);
@@ -102,12 +114,11 @@ class _LoginScreenState extends State<LoginScreen> {
         // Backend offline — fall back to mock login for demo
         debugPrint('Backend offline ($e). Logging in with mock profile.');
 
-        SessionManager.login(Employee(
+       SessionManager.login(Employee(
           id: 1,
-          employeeCode: 'EMP-001',
-          fullName: 'Aarthi S',
+          firstName: 'Aarthi',
+          lastName: 'S',
           email: _emailController.text.trim(),
-          sector: 'Sector 09A',
           designation: 'Senior Developer',
           isActive: true,
           createdAt: DateTime.now(),

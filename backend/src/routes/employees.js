@@ -88,7 +88,8 @@ router.put('/:id', async (req, res) => {
 });
 
 
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Ensure database columns exist
 async function ensureDbColumns() {
@@ -115,56 +116,10 @@ function generateTempPassword() {
 
 // Helper to send registration email
 async function sendWelcomeEmail(fullName, email, tempPassword) {
-  let transporter;
-  let isEthereal = false;
-
-  // Use SMTP credentials from environment variables if present
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  } else {
-    // Fallback: Use the verified Gmail SMTP credentials to deliver real emails
-    try {
-      transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'aarthiarunachalamk@gmail.com',
-          pass: 'plme htqa bqag dcrc',
-        },
-      });
-    } catch (err) {
-      console.warn('Failed to configure Gmail SMTP transport, falling back to Ethereal:', err.message);
-      try {
-        const testAccount = await nodemailer.createTestAccount();
-        transporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: {
-            user: testAccount.user,
-            pass: testAccount.pass,
-          },
-        });
-        isEthereal = true;
-      } catch (etherealErr) {
-        console.error('Failed to create Ethereal test account:', etherealErr.message);
-        return { success: false, error: etherealErr.message };
-      }
-    }
-  }
-
-  const mailOptions = {
-    from: `"HRMS – BitByte" <aarthiarunachalamk@gmail.com>`,
+  const msg = {
     to: email,
+    from: 'senthil.bitbyte@gmail.com',
     subject: 'Welcome to HRMS – Your Temporary Login Credentials',
-    text: `Hi ${fullName},\n\nYour HRMS account has been created successfully.\n\nUse the temporary password below to log in and change it immediately.\n\nTemporary Password: ${tempPassword}\n\nLogin at the HRMS mobile app.\n\nRegards,\nBitByte HR Team`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;padding:0;border-radius:8px;overflow:hidden;">
         <div style="background:#0284C7;padding:28px 32px;text-align:center;">
@@ -193,24 +148,14 @@ async function sendWelcomeEmail(fullName, email, tempPassword) {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    let previewUrl = null;
-    if (isEthereal) {
-      previewUrl = nodemailer.getTestMessageUrl(info);
-      console.log('\n----------------------------------------------------');
-      console.log(`✉️  Ethereal Welcome Email sent for ${fullName}`);
-      console.log(`   Preview URL: ${previewUrl}`);
-      console.log('----------------------------------------------------\n');
-    } else {
-      console.log(`✉️  Welcome Email successfully sent to ${email}`);
-    }
-    return { success: true, previewUrl };
+    await sgMail.send(msg);
+    console.log(`✉️  Welcome Email successfully sent to ${email}`);
+    return { success: true, previewUrl: null };
   } catch (err) {
-    console.error('Error sending welcome email:', err.message);
+    console.error('Error sending welcome email:', err.response?.body || err.message);
     return { success: false, error: err.message };
   }
 }
-
 // ── POST /api/employees/signup  – employee registration & password generation
 router.post('/signup', async (req, res) => {
   const { firstName, lastName, email, phoneNumber, designation, birthday, joiningDate } = req.body;

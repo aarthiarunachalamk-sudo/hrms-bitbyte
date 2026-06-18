@@ -342,7 +342,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                         color: Colors.white, strokeWidth: 2.5),
                                   )
                                 : Text(
-                                    'Update Password',
+                                   'Create Password',
                                     style: GoogleFonts.inter(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
